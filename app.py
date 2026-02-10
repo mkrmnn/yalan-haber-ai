@@ -3,6 +3,7 @@ import joblib
 import os
 import requests
 
+st.set_page_config(page_title="Haber Doğrulama Paneli", layout="wide")
 # Google Drive'dan büyük dosyayı indirme fonksiyonu
 def download_file_from_google_drive(id, destination):
     URL = "https://docs.google.com/uc?export=download"
@@ -83,3 +84,4 @@ if st.button("Analiz Et"):
 st.sidebar.header("Hakkında")
 
 st.sidebar.info("Bu proje, Siyaset Bilimi ve Veri Bilimi kullanılarak geliştirilmiştir. Model, 45.000 haber üzerinde eğitilmiştir.")
+
