@@ -1,17 +1,46 @@
 import streamlit as st
 import joblib
+import os
+import requests
 
-# 1. Kaydedilen Modelleri Geri Yükle (Cache kullanarak hızlandırıyoruz)
+# Google Drive'dan büyük dosyayı indirme fonksiyonu
+def download_file_from_google_drive(id, destination):
+    URL = "https://docs.google.com/uc?export=download"
+    session = requests.Session()
+    response = session.get(URL, params={'id': id}, stream=True)
+    token = None
+    for key, value in response.cookies.items():
+        if key.startswith('download_warning'):
+            token = value
+            break
+    if token:
+        params = {'id': id, 'confirm': token}
+        response = session.get(URL, params=params, stream=True)
+    
+    with open(destination, "wb") as f:
+        for chunk in response.iter_content(32768):
+            if chunk: f.write(chunk)
+
+# --- DRIVE AYARLARI ---
+# Buraya Google Drive'daki model dosyanın ID'sini yazmalısın
+FILE_ID = '1beTkZgnjG_PU5kXtYvt2OEuzgSUoL5w-'
+DESTINATION = 'random_forest_model.pkl'
+
 @st.cache_resource
 def model_yukle():
-    # Dosya isimlerinin senin kaydettiklerinle AYNI olduğundan emin ol
+    # Model dosyası yoksa Drive'dan indir
+    if not os.path.exists(DESTINATION):
+        download_file_from_google_drive(FILE_ID, DESTINATION)
+    
+    # Dosyaları yükle
     vectorizer = joblib.load('vectorizer.pkl')
-    model = joblib.load('random_forest_model.pkl')
+    model = joblib.load(DESTINATION)
     return vectorizer, model
 
-# Hata alırsak kullanıcıya göstermek için try-except bloğu
 try:
     cv, rf_model = model_yukle()
+except Exception as e:
+    st.error(f"HATA: Model yüklenemedi. Detay: {e}")
 except FileNotFoundError:
     st.error("HATA: .pkl dosyaları bulunamadı! Lütfen 'vectorizer.pkl' ve 'random_forest_model.pkl' dosyalarının bu klasörde olduğundan emin olun.")
     st.stop()
@@ -52,4 +81,5 @@ if st.button("Analiz Et"):
 
 # Yan menüye bilgi ekleyelim
 st.sidebar.header("Hakkında")
+
 st.sidebar.info("Bu proje, Siyaset Bilimi ve Veri Bilimi kullanılarak geliştirilmiştir. Model, 45.000 haber üzerinde eğitilmiştir.")
