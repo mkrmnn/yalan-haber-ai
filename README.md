@@ -15,4 +15,4 @@ Veri Bilimi & ML: Pandas, NumPy, Scikit-learn
 
 Arayüz & Dağıtım: Streamlit
 
-Uygulama Linki: https://huggingface.co/spaces/mkrmn/looply 
+Uygulama Linki: https://yalan-haber-ai-vdxczpbwvjgad8gs9elccf.streamlit.app
